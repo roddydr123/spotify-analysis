@@ -1,0 +1,5 @@
+# ignore the configuration details file
+config
+
+# ignore pycache
+__pycache__/
