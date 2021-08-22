@@ -17,6 +17,9 @@ import pandas as pd
 import numpy as np
 
 
+# WHAT WWE DO HERE IS GO BACK BACK BACK BACK
+
+
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_FILE_DIR"] = mkdtemp()
