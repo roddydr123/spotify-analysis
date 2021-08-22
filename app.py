@@ -41,7 +41,7 @@ def login():
     payload = {
         'client_id': client_id,
         'response_type': 'code',
-        'redirect_uri': "http://127.0.0.1:5000/callback",
+        'redirect_uri': f'{request.url_root}callback',
         'scope': 'user-read-private user-read-email user-library-read',
         'state': 'YaBoi12345678912'
     }
@@ -65,7 +65,7 @@ def callback():
     authorization = re.post(auth_url, {
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': "http://127.0.0.1:5000/callback",
+        'redirect_uri': f'{request.url_root}callback',
         'client_id': client_id,
         'client_secret': app.config["SECRET_KEY"]
     })
@@ -204,7 +204,7 @@ def search():
     authorisation = re.post(auth_url, {
         'grant_type': 'client_credentials',
         'client_id': client_id,
-        'client_secret': secret_key
+        'client_secret': app.config["SECRET_KEY"]
     })
 
     auth_response_data = authorisation.json()
