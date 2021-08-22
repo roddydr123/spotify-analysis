@@ -6,7 +6,6 @@ import requests as re
 from flask import Flask, render_template, request, redirect, session
 from flask_session import Session
 from urllib.parse import urlencode
-from tempfile import mkdtemp
 import time
 import datetime
 import json
@@ -21,16 +20,12 @@ import numpy as np
 
 
 app = Flask(__name__)
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config.from_object('config.Config')
 Session(app)
 
 BASE_URL = 'https://api.spotify.com/v1/'
 auth_url = 'https://accounts.spotify.com/api/token'
 client_id = "313b84bd0e5440c1b9ae2b752ca7a6ff"
-secret_key = "b48c1db7336649bea6810ab94fe1e612"
 user_auth_url = 'https://accounts.spotify.com/authorize'
 
 
@@ -72,7 +67,7 @@ def callback():
         'code': code,
         'redirect_uri': "http://127.0.0.1:5000/callback",
         'client_id': client_id,
-        'client_secret': secret_key
+        'client_secret': app.config["SECRET_KEY"]
     })
 
     full_token = authorization.json()
