@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}
+Analyse your saved songs
+{% endblock %}
+{% block style %}
+{% endblock %}
+{% block content %}
+    <h1>Plot of {{ feature }} vs time since added for a user's liked songs.</h1>
+    <div>Savitzky-Golay filter applied to smooth the data. Hover over a data point to see the track name.</div>
+    <div id="chart" class="chart"></div>
+    <form id="new_metrics" action="/saved_analysis" method="POST">
+        <select name="feature" form="new_metrics">
+            <option value = "danceability" selected>Danceability</option>
+            <option value = "speechiness">Speechiness</option>
+            <option value = "energy">Energy</option>
+            <option value = "acousticness">Acousticness</option>
+        </select>
+        <input type="number" step="1" pattern="\d+" name="quantity" min="50" max="5000" placeholder="Number of songs to load:" class="form-control"> 
+    </form>
+    <button type='submit' form="new_metrics" >Reload graph</button>
+    Bear in mind it takes ~15 seconds to load 2000 songs.
+    <div>There are {{ no_points }} songs on this chart.</div>
+{% endblock %}

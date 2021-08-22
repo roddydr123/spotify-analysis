@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}
+Spotifish
+{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+{% block content %}
+    <div>
+        hello
+    </div>
+    {% if info %}
+        <div>
+            {{ info }}
+        </div>
+    {% else %}
+        would you like to search for a song?
+        <form method="POST" action="/search">
+            <input type="text" class="form-control" name="trackname">
+        </form>
+    {% endif %}
+    <form method="GET" action="/login">
+        <button type='submit'>Log in to your spotify</button>
+    </form>
+</html>
+{% endblock %}
