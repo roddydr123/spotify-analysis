@@ -1,0 +1,40 @@
+to test:
+	- open anaconda terminal and navigate to this folder
+	- execute "flask run"
+	- go to "http://127.0.0.1:5000/" in browser
+
+
+to do:
+
+- make this script into a flask web app so I can do this online
+- work out how to do specific user authentication so I can access saved songs
+	(do it from backend, NO JAVASCRIPT!)
+done and done
+
+- clean up the structure of the website:
+	index: you can search for songs or press a button to connect your spotify
+	home: maybe has a list of features and buttons to take you to a page for each one
+	saved_analysis: fetches saved songs on load and ill see what analysis i can do
+		- max 50 songs per call so can iterate 10 calls with an offset of 50 to get
+		a good data set.
+
+- maybe create some sort of user playlist/library analysis on the web page
+		- danceablility vs time graph if possible would be fun
+- could try hosting on pythonanywhere if i can be bothered
+
+
+
+interim problems with saved_analysis:
+	- get request for saved songs ignores the limit and offset params	SOLVED
+	- also does not seem to loop despite being in a loop	SOLVED
+	- audio details request fails	SOLVED
+	- songs variable ends up only being 1 item: most recent liked song	SOLVED
+
+now getting how long ago song added from iso8601 format
+
+now i've got lists of how long ago songs were added in seconds and the corresponding
+danceablility. I can hopefully use this to plot a graph and display it.
+
+done, but the graph is a bit untidy. smoothing data with a savgol filter feels a bit
+dishonest but i think first thing to do is convert the millions of seconds to days ago
+or somehow pass the original dates through.

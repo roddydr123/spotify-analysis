@@ -38,15 +38,20 @@ def index():
 @app.route("/login")
 def login():
 
-    payload = {
-        'client_id': client_id,
-        'response_type': 'code',
-        'redirect_uri': f'{request.url_root}callback',
-        'scope': 'user-read-private user-read-email user-library-read',
-        'state': 'YaBoi12345678912'
-    }
+    if "access_token" not in session:
 
-    return redirect(f'{user_auth_url}/?{urlencode(payload)}')
+        payload = {
+            'client_id': client_id,
+            'response_type': 'code',
+            'redirect_uri': f'{request.url_root}callback',
+            'scope': 'user-read-private user-read-email user-library-read',
+            'state': 'YaBoi12345678912'
+        }
+
+        return redirect(f'{user_auth_url}/?{urlencode(payload)}')
+
+    else:
+        return redirect("/home")
 
 
 @app.route("/callback")
@@ -74,11 +79,6 @@ def callback():
     # next line will fail if you refresh /home without going back to login
     access_token = full_token['access_token']
 
-    if access_token:
-        info = "success"
-    else:
-        info = "something wrong with access token"
-
     session["access_token"] = access_token
 
     return redirect("/home")
@@ -91,16 +91,19 @@ def home():
 
 @app.route("/saved_analysis", methods=['GET', 'POST'])
 def saved_analysis():
-    # get a list of the user's saved tracks (max 50)
+    ogTime = time.perf_counter()
 
+    # get a list of the user's saved tracks (max 50)
     access_token = session["access_token"]
 
     feature = 'danceability'
     no_songs = 200
+    choice = None
 
     if request.method == 'POST':
         feature = request.form.get("feature")
         no_songs = request.form.get("quantity")
+        choice = request.form.get("filter-choice")
 
         if feature is None:
             feature = 'danceability'
@@ -165,9 +168,10 @@ def saved_analysis():
         for track in track_details["audio_features"]:
             d_list.append(track[f'{feature}'])
 
-    # smooth the danceablility data
-    window = int((len(d_list) / 2) + 1)
-    d_list = sg.savgol_filter(d_list, window, 2)
+    # prep the filtered data
+    if choice == "filtered":
+        window = int((len(d_list) / 2) + 1)
+        d_list = sg.savgol_filter(d_list, window, 2)
 
     # make a dataframe from the columns and adjust time to days/months/years
     maxtime = np.array(time_elapsed).astype(int).max() / (3600 * 24)
@@ -190,13 +194,53 @@ def saved_analysis():
     axis_labels = {'time_elapsed': f'Time since song added / {time_label}',
                    'd_list': f'{feature}'}
 
-    # make the plotly graph of the data
-    fig = px.scatter(df, x='time_elapsed', y='d_list',
-                     hover_data=['track_names'], labels=axis_labels)
+    # depends if you want filtered or trendline plot
+    if choice == "filtered":
+        fig = px.scatter(df, x='time_elapsed', y='d_list',
+                         hover_data=['track_names'], labels=axis_labels)
+        choiceSpec = "Savitzky-Golay filter applied to smooth the data."
+        trendInfo = ""
+
+    # this is the default
+    else:
+        fig = px.scatter(df, x='time_elapsed', y='d_list',
+                         hover_data=['track_names'], labels=axis_labels,
+                         trendline='ols')
+        choiceSpec = """Every data point is a song, the trendline shows
+                      long-term evolution in your tastes. Kind of."""
+
+        trendDF = px.get_trendline_results(fig)
+        trendResults = trendDF.iloc[0]["px_fit_results"].params
+
+        # make a personalised description of the trend
+        gradient = trendResults[1]
+        if gradient > 0:
+            trendDescriptor = "decreased"
+        else:
+            trendDescriptor = "increased"
+
+        # round the gradient for presentation
+        gradient = round(abs(gradient) * 1000, 2)
+
+        trendInfo = f'''Your preference for songs with high {feature}
+                    {trendDescriptor} over time at a rate of {gradient}
+                    thousandths per {time_label[:-1]}.'''
+
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template("saved_analysis.html", graphJSON=graphJSON,
-                           no_points=len(list_of_saved), feature=feature)
+    nowTime = time.perf_counter()
+    timed = round(nowTime - ogTime, 1)
+
+    dataPackage = {
+        "no_points": len(list_of_saved),
+        "feature": feature,
+        "choiceSpec": choiceSpec,
+        "trendInfo": trendInfo,
+        "time": timed
+    }
+
+    return render_template("saved_analysis.html", data=dataPackage,
+                           graphJSON=graphJSON)
 
 
 @app.route("/search", methods=['POST'])
