@@ -38,3 +38,12 @@ danceablility. I can hopefully use this to plot a graph and display it.
 done, but the graph is a bit untidy. smoothing data with a savgol filter feels a bit
 dishonest but i think first thing to do is convert the millions of seconds to days ago
 or somehow pass the original dates through.
+
+branch non-filtered:
+add another dropdown so user can choose between unfiltered trendline (default) and filtered. SOLVED
+make it so it only sends requests until one has less than 50 songs i.e. reached end of lib
+number of songs input has current number of songs as value	SOLVED
+details of trendline shown on page
+debug development environment problem
+maybe delete __pycache__ from github
+need this js function to find the prev values of the dropdowns and set them to them

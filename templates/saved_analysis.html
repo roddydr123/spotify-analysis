@@ -5,9 +5,14 @@ Analyse your saved songs
 {% block style %}
 {% endblock %}
 {% block content %}
-    <h1>Plot of {{ data.feature }} vs time since added for a user's liked songs.</h1>
-    <div>Hover over a data point to see the track name. {{ data.choiceSpec }}</div>
-    <div>{{ data.trendInfo }}</div>
+    <h1>Plot of {{ data.feature }} vs time since added for your Spotify liked songs.</h1>
+    <div>Tap a data point to see the track name. {{ data.choiceSpec }}</div>
+    {% if data.trendInfo %}
+        <div>{{ data.trendInfo }}</div>
+    {% endif %}
+    {% if data.maxmin %}
+        <div>The highest {{ data.feature }} track you've added in this interval is {{ data.maxmin[0] }} and the lowest is {{ data.maxmin[1] }}.</div>
+    {% endif %}
     <div id="chart" class="chart"></div>
     <form id="new_metrics" action="/saved_analysis" method="POST">
         <select id="filter-choice" name="filter-choice" form="new_metrics">

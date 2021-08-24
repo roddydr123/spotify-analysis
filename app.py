@@ -199,7 +199,8 @@ def saved_analysis():
         fig = px.scatter(df, x='time_elapsed', y='d_list',
                          hover_data=['track_names'], labels=axis_labels)
         choiceSpec = "Savitzky-Golay filter applied to smooth the data."
-        trendInfo = ""
+        trendInfo = None
+        maxmin = None
 
     # this is the default
     else:
@@ -226,6 +227,11 @@ def saved_analysis():
                     {trendDescriptor} over time at a rate of {gradient}
                     thousandths per {time_label[:-1]}.'''
 
+        # get the most and least e.g. dancable tracks
+        featArray = np.array(d_list)
+        maxmin = [list_of_saved[np.argmax(featArray)],
+                  list_of_saved[np.argmin(featArray)]]
+
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     nowTime = time.perf_counter()
@@ -236,7 +242,8 @@ def saved_analysis():
         "feature": feature,
         "choiceSpec": choiceSpec,
         "trendInfo": trendInfo,
-        "time": timed
+        "time": timed,
+        "maxmin": maxmin
     }
 
     return render_template("saved_analysis.html", data=dataPackage,
