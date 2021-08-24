@@ -5,19 +5,28 @@ Analyse your saved songs
 {% block style %}
 {% endblock %}
 {% block content %}
-    <h1>Plot of {{ feature }} vs time since added for a user's liked songs.</h1>
-    <div>Savitzky-Golay filter applied to smooth the data. Hover over a data point to see the track name.</div>
+    <h1>Plot of {{ data.feature }} vs time since added for your Spotify liked songs.</h1>
+    <div>Tap a data point to see the track name. {{ data.choiceSpec }}</div>
+    {% if data.trendInfo %}
+        <div>{{ data.trendInfo }}</div>
+    {% endif %}
+    {% if data.maxmin %}
+        <div>The highest {{ data.feature }} track you've added in this interval is {{ data.maxmin[0] }} and the lowest is {{ data.maxmin[1] }}.</div>
+    {% endif %}
     <div id="chart" class="chart"></div>
     <form id="new_metrics" action="/saved_analysis" method="POST">
-        <select name="feature" form="new_metrics">
-            <option value = "danceability" selected>Danceability</option>
+        <select id="filter-choice" name="filter-choice" form="new_metrics">
+            <option value = "trendline">Raw data with trendline</option>
+            <option value = "filtered">Filtered data</option>
+        </select>
+        <select id="feature" name="feature" form="new_metrics">
+            <option value = "danceability">Danceability</option>
             <option value = "speechiness">Speechiness</option>
             <option value = "energy">Energy</option>
             <option value = "acousticness">Acousticness</option>
         </select>
-        <input type="number" step="1" pattern="\d+" name="quantity" min="50" max="5000" placeholder="Number of songs to load:" class="form-control"> 
+        <input value="{{ data.no_points }}" type="number" step="1" pattern="\d+" name="quantity" min="100" max="5000" placeholder="Number of songs to load (multiples of 50 please):" class="form-control"> 
     </form>
     <button type='submit' form="new_metrics" >Reload graph</button>
-    Bear in mind it takes ~15 seconds to load 2000 songs.
-    <div>There are {{ no_points }} songs on this chart.</div>
+    <div>Took {{ data.time }} seconds to load {{ data.no_points }} tracks.</div>
 {% endblock %}
